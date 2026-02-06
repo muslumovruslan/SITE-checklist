@@ -24,7 +24,7 @@
 <h2 onclick="toggleNext(this)">Before the Event</h2>
 <div class="section-content">
 
-  <h3 onclick="toggleNext(this)">1. About announcement email:</h3>
+  <h3 onclick="toggleNext(this)">About announcement email:</h3>
   <div class="subsection-content">
     <div class="item">Who communicates with the speaker? <input type="text"></div>
     <div class="item"><input type="checkbox"> Is the announcement email sent from ADA SITE Talks email on time?</div>
@@ -40,8 +40,8 @@
     <div class="item"><input type="checkbox"> Is the email sent to ALL (not only SITE)?</div>
   </div>
 
-  <h3 data-for="external" onclick="toggleNext(this)">3. Who will meet the speaker?</h3>
-<div class="subsection-content" data-for="external">
+  <h3 data-for="both" onclick="toggleNext(this)">The event venue:</h3>
+<div class="subsection-content" data-for="both">
     <div class="item"><input type="checkbox"> Is the event room registered via rooms.ada?</div>
     <div class="item"><input type="checkbox"> Is the technical support form filled in before the event?</div>
     <div class="item"><input type="checkbox"> Is the email sent to IT about the event?</div>
@@ -51,8 +51,8 @@
     <div class="item"><input type="checkbox"> Is all equipment working properly (computer, pointer, marker, smart board, etc.)?</div>
   </div>
 
-  <h3 onclick="toggleNext(this)">3. Who will meet the speaker?</h3>
-  <div class="subsection-content">
+  <h3 data-for="external" onclick="toggleNext(this)">Who will meet the speaker?</h3>
+<div class="subsection-content" data-for="external">
     <div class="item"><input type="checkbox"> Is the welcome center informed about the speaker’s visit?</div>
     <div class="item"><input type="checkbox"> Is the arrival method confirmed (by car or otherwise)?</div>
     <div class="item"><input type="checkbox"> If arriving by car, is the plate number shared with the welcome center?</div>
@@ -60,8 +60,9 @@
     <div class="item">Who introduces the speaker to the audience? <input type="text"></div>
   </div>
 
-  <h3 onclick="toggleNext(this)">4. Technical and communication tasks:</h3>
-  <div class="subsection-content">
+  <h3 data-for="external" onclick="toggleNext(this)">Technical and communication tasks:</h3>
+<div class="subsection-content" data-for="external">
+
     <div class="item"><input type="checkbox"> Is the technical support form sent?</div>
     <div class="item"><input type="checkbox"> Is the email sent to media.ada.edu.az to inform them?</div>
     <div class="item"><input type="checkbox"> Does the media email include event details (event description, time, location, expected attendance)?</div>
@@ -85,8 +86,16 @@
 
 <h2 onclick="toggleNext(this)">After the Event</h2>
 <div class="section-content">
-  <div class="item"><input type="checkbox"> Do faculty members meet guest speakers after the event?</div>
-  <div class="item">Who is responsible for arranging this meeting? <input type="text"></div>
+  <div class="item" data-for="external">
+  <input type="checkbox">
+  Do faculty members meet guest speakers after the event?
+</div>
+
+<div class="item" data-for="external">
+  Who is responsible for arranging this meeting?
+  <input type="text">
+</div>
+
   <div class="item">Who will upload the recordings to social media? <input type="text"></div>
   <div class="item"><input type="checkbox"> Are recorded videos uploaded?</div>
   <div class="item"><input type="checkbox"> Are photos uploaded to social media?</div>
