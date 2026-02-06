@@ -33,12 +33,14 @@ h3 {
   display: none;
 }
 
+/* Section toggling */
 .section-content,
 .subsection-content {
   display: none;
   margin-top: 10px;
 }
 
+/* Checklist items */
 .item {
   display: flex;
   align-items: center;
@@ -66,7 +68,8 @@ input[type="date"] {
   color: #555;
 }
 
-/* Sticky top bar */
+/* ================= TOP BAR ================= */
+
 #top-bar {
   position: sticky;
   top: 0;
@@ -80,46 +83,18 @@ input[type="date"] {
   gap: 10px;
 }
 
-button {
-  padding: 8px 14px;
-  font-size: 14px;
-  cursor: pointer;
-}
+/* ================= PROGRESS BAR ================= */
 
-/* Progress bar */
 #progress-container {
-  margin: 20px 0;
+  position: sticky;
+  top: 60px; /* below top-bar */
+  background: white;
+  padding: 10px 0;
+  z-index: 999;
 }
 
 #progress-bar {
   width: 100%;
-  height: 18px;
-  background: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-#progress-fill {
-  height: 100%;
-  width: 0%;
-  background: #27ae60;
-  transition: width 0.3s;
-}
-
-#progress-text {
-  text-align: right;
-  font-size: 13px;
-  margin-top: 4px;
-}
-#progress-container {
-  position: sticky;
-  top: 0;
-  background: white;
-  padding: 10px 0;
-  z-index: 1000;
-}
-
-#progress-bar {
   height: 10px;
   background: #e0e0e0;
   border-radius: 5px;
@@ -133,6 +108,22 @@ button {
   transition: width 0.3s ease;
 }
 
+#progress-text {
+  text-align: right;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ================= BUTTONS ================= */
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ================= PRINT ================= */
+
 @media print {
   button,
   #progress-container {
@@ -144,4 +135,3 @@ button {
     display: block !important;
   }
 }
-
