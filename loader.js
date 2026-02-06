@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", init);
 function init() {
   const type = localStorage.getItem(SPEAKER_KEY);
   if (!type) loadPage("speakerPrompt");
- else if (type === "yes")
-  loadPage("externalPage", () => initChecklist("ada"));
+ else if (type === "yes") 
+   loadPage("adaPage", () => initChecklist("ada"));
 else 
    loadPage("externalPage", () => initChecklist("external"));
 
@@ -32,4 +32,5 @@ function resetSpeakerType() {
   localStorage.removeItem(SPEAKER_KEY);
   init();
 }
+
 
