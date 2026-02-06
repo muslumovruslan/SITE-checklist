@@ -7,8 +7,8 @@ function init() {
   if (!type) loadPage("speakerPrompt");
  else if (type === "yes")
   loadPage("externalPage", () => initChecklist("ada"));
-else
-  loadPage("externalPage", () => initChecklist("external"));
+else 
+   loadPage("externalPage", () => initChecklist("external"));
 
 }
 
@@ -32,3 +32,4 @@ function resetSpeakerType() {
   localStorage.removeItem(SPEAKER_KEY);
   init();
 }
+
