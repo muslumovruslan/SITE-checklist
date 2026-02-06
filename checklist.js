@@ -2,11 +2,20 @@ const CHECKLIST_KEY = "SITE_CHECKLIST_STATE";
 
 function initChecklist(mode = "external") {
 
-  // hide sections not meant for this mode
+  // hide sections/items not meant for this mode
   document.querySelectorAll("[data-for]").forEach(el => {
     const allowed = el.getAttribute("data-for");
+
     if (allowed !== "both" && allowed !== mode) {
       el.style.display = "none";
+
+      // if header, also hide its content block
+      if (el.tagName === "H2" || el.tagName === "H3") {
+        const next = el.nextElementSibling;
+        if (next) {
+          next.style.display = "none";
+        }
+      }
     }
   });
 
@@ -27,6 +36,7 @@ function saveState() {
 
   inputs.forEach(i => {
     state[i.id] = i.type === "checkbox" ? i.checked : i.value;
+
     if (i.type === "checkbox") {
       i.parentElement.classList.toggle("completed", i.checked);
     }
