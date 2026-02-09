@@ -8,6 +8,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+function waitForInputsAndLoadState() {
+  const inputs = document.querySelectorAll("input");
+  if (inputs.length > 0) {
+    loadState();
+  } else {
+    requestAnimationFrame(waitForInputsAndLoadState);
+  }
+}
+
 function initChecklist(mode = "external") {
 
   // hide sections/items not meant for this mode
@@ -34,8 +43,8 @@ function initChecklist(mode = "external") {
     i.addEventListener("input", saveState);
   });
 
-  updateProgress();
-  setTimeout(loadState, 0);
+    updateProgress();
+    waitForInputsAndLoadState();
 }
 function collectState() {
   const inputs = document.querySelectorAll("input");
@@ -109,6 +118,7 @@ function toggleNext(el) {
     next.style.display = next.style.display === "block" ? "none" : "block";
   }
 }
+
 
 
 
