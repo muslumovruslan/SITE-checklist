@@ -19,7 +19,11 @@ function loadPage(page, callback) {
     .then(r => r.text())
     .then(html => {
       document.getElementById("app").innerHTML = html;
-      if (callback) callback();
+
+      // IMPORTANT: wait until DOM is fully updated
+      requestAnimationFrame(() => {
+        if (callback) callback();
+      });
     });
 }
 
@@ -34,6 +38,4 @@ function resetSpeakerType() {
   localStorage.removeItem(SPEAKER_KEY);
   init();
 }
-
-
 
