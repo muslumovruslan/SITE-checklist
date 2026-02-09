@@ -1,3 +1,13 @@
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY_HERE",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 const CHECKLIST_KEY = "SITE_CHECKLIST_STATE";
 
 function initChecklist(mode = "external") {
@@ -29,8 +39,7 @@ function initChecklist(mode = "external") {
   loadState();
   updateProgress();
 }
-
-function saveState() {
+function collectState() {
   const inputs = document.querySelectorAll("input");
   const state = {};
 
@@ -42,12 +51,16 @@ function saveState() {
     }
   });
 
-  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
+  return state;
+}
+
+function saveState() {
+  const state = collectState();
+  db.ref("checklist").set(state);
   updateProgress();
 }
 
-function loadState() {
-  const state = JSON.parse(localStorage.getItem(CHECKLIST_KEY));
+function applyState(state) {
   if (!state) return;
 
   document.querySelectorAll("input").forEach(i => {
@@ -60,7 +73,16 @@ function loadState() {
       }
     }
   });
+
+  updateProgress();
 }
+
+function loadState() {
+  db.ref("checklist").on("value", snapshot => {
+    applyState(snapshot.val());
+  });
+}
+
 
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
@@ -89,3 +111,4 @@ function toggleNext(el) {
     next.style.display = next.style.display === "block" ? "none" : "block";
   }
 }
+
