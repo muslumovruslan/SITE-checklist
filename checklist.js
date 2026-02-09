@@ -1,3 +1,7 @@
+/* =========================
+   Firebase setup
+========================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyDU7HYzKUsDhG50tU6SwQdLGAfmKjAS7JY",
   authDomain: "shared-checklist-7a74d.firebaseapp.com",
@@ -8,14 +12,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function waitForInputsAndLoadState() {
-  const inputs = document.querySelectorAll("input");
-  if (inputs.length > 0) {
-    loadState();
-  } else {
-    requestAnimationFrame(waitForInputsAndLoadState);
-  }
-}
+/* =========================
+   Checklist logic
+========================= */
 
 function initChecklist(mode = "external") {
 
@@ -26,16 +25,14 @@ function initChecklist(mode = "external") {
     if (allowed !== "both" && allowed !== mode) {
       el.style.display = "none";
 
-      // if header, also hide its content block
       if (el.tagName === "H2" || el.tagName === "H3") {
         const next = el.nextElementSibling;
-        if (next) {
-          next.style.display = "none";
-        }
+        if (next) next.style.display = "none";
       }
     }
   });
 
+  // attach listeners and ids
   const inputs = document.querySelectorAll("input");
   inputs.forEach((i, idx) => {
     i.id ||= "f_" + idx;
@@ -43,21 +40,18 @@ function initChecklist(mode = "external") {
     i.addEventListener("input", saveState);
   });
 
-    updateProgress();
-    waitForInputsAndLoadState();
+  updateProgress();
+  loadState(); // SAFE now because loader.js waits correctly
 }
+
 function collectState() {
-  const inputs = document.querySelectorAll("input");
   const state = {};
-
-  inputs.forEach(i => {
+  document.querySelectorAll("input").forEach(i => {
     state[i.id] = i.type === "checkbox" ? i.checked : i.value;
-
     if (i.type === "checkbox") {
       i.parentElement.classList.toggle("completed", i.checked);
     }
   });
-
   return state;
 }
 
@@ -65,6 +59,12 @@ function saveState() {
   const state = collectState();
   db.ref("checklist").set(state);
   updateProgress();
+}
+
+function loadState() {
+  db.ref("checklist").on("value", snapshot => {
+    applyState(snapshot.val());
+  });
 }
 
 function applyState(state) {
@@ -84,22 +84,14 @@ function applyState(state) {
   updateProgress();
 }
 
-function loadState() {
-  db.ref("checklist").on("value", snapshot => {
-    applyState(snapshot.val());
-  });
-}
-
-
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
   db.ref("checklist").remove();
 }
 
-
 function updateProgress() {
   const boxes = [...document.querySelectorAll("input[type=checkbox]")]
-    .filter(b => b.offsetParent !== null); // only visible checkboxes
+    .filter(b => b.offsetParent !== null);
 
   const done = boxes.filter(b => b.checked).length;
   const pct = boxes.length ? Math.round(done / boxes.length * 100) : 0;
@@ -118,7 +110,3 @@ function toggleNext(el) {
     next.style.display = next.style.display === "block" ? "none" : "block";
   }
 }
-
-
-
-
