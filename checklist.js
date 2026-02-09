@@ -1,14 +1,12 @@
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT",
+  apiKey: "AIzaSyDU7HYzKUsDhG50tU6SwQdLGAfmKjAS7JY",
+  authDomain: "shared-checklist-7a74d.firebaseapp.com",
+  databaseURL: "https://shared-checklist-7a74d-default-rtdb.firebaseio.com",
+  projectId: "shared-checklist-7a74d",
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-const CHECKLIST_KEY = "SITE_CHECKLIST_STATE";
 
 function initChecklist(mode = "external") {
 
@@ -86,9 +84,9 @@ function loadState() {
 
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
-  localStorage.removeItem(CHECKLIST_KEY);
-  location.reload();
+  db.ref("checklist").remove();
 }
+
 
 function updateProgress() {
   const boxes = [...document.querySelectorAll("input[type=checkbox]")]
@@ -111,4 +109,5 @@ function toggleNext(el) {
     next.style.display = next.style.display === "block" ? "none" : "block";
   }
 }
+
 
