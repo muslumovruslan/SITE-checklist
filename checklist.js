@@ -34,8 +34,8 @@ function initChecklist(mode = "external") {
     i.addEventListener("input", saveState);
   });
 
-  loadState();
   updateProgress();
+  setTimeout(loadState, 0);
 }
 function collectState() {
   const inputs = document.querySelectorAll("input");
@@ -109,5 +109,6 @@ function toggleNext(el) {
     next.style.display = next.style.display === "block" ? "none" : "block";
   }
 }
+
 
 
