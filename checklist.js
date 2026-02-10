@@ -177,12 +177,20 @@ function clearChecklist() {
 
 
 function updateProgress() {
-  const boxes = [...document.querySelectorAll("input[type=checkbox]")]
-    .filter(b => b.offsetParent !== null);
+  const boxes = [...document.querySelectorAll("input[type=checkbox]")];
 
-  const done = boxes.filter(b => b.checked).length;
-  const pct = boxes.length
-    ? Math.round((done / boxes.length) * 100)
+  const relevantBoxes = boxes.filter(b => {
+    const wrapper = b.closest("[data-for]");
+    if (!wrapper) return true; // applies to all modes
+    return wrapper.getAttribute("data-for") === "both"
+      || wrapper.getAttribute("data-for") === checklistKey
+      || wrapper.getAttribute("data-for") === "external"
+      || wrapper.getAttribute("data-for") === "ada";
+  });
+
+  const done = relevantBoxes.filter(b => b.checked).length;
+  const pct = relevantBoxes.length
+    ? Math.round((done / relevantBoxes.length) * 100)
     : 0;
 
   const fill = document.getElementById("progress-fill");
@@ -191,6 +199,7 @@ function updateProgress() {
   if (fill) fill.style.width = pct + "%";
   if (text) text.textContent = pct + "% completed";
 }
+
 
 function exportPDF() {
   window.print();
@@ -203,4 +212,5 @@ function toggleNext(el) {
       next.style.display === "block" ? "none" : "block";
   }
 }
+
 
