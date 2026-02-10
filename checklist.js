@@ -4,6 +4,7 @@
 
 let db = null;
 let checklistKey = "default";
+let currentMode = "external"; // 🔑 IMPORTANT
 let firebaseListenerAttached = false;
 
 (function loadFirebase(cb) {
@@ -39,6 +40,7 @@ function initFirebase() {
 ====================================================== */
 
 function initChecklist(mode = "external", key = null) {
+  currentMode = mode;              // ✅ STORE MODE
   checklistKey = key || mode;
 
   // Hide sections not meant for this mode
@@ -53,9 +55,7 @@ function initChecklist(mode = "external", key = null) {
     }
   });
 
-  // Reset listener flag when re-initializing
   firebaseListenerAttached = false;
-
   waitForInputsThenInit();
 }
 
@@ -134,8 +134,7 @@ function loadState() {
 
 function applyState(state) {
   if (!state) {
-    // Even if there is no state, still update progress
-    updateProgress();
+    requestAnimationFrame(updateProgress);
     return;
   }
 
@@ -153,24 +152,19 @@ function applyState(state) {
     }
   });
 
-  // 🔑 Force progress recalculation AFTER DOM updates
+  // 🔑 CRITICAL: update AFTER DOM updates
   requestAnimationFrame(updateProgress);
-}
-
-
-  updateProgress();
 }
 
 /* ======================================================
    6. Utilities
 ====================================================== */
+
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
 
-  // 1. Clear Firebase data
   checklistRef().remove();
 
-  // 2. Reset UI immediately
   document.querySelectorAll("input").forEach(input => {
     if (input.type === "checkbox") {
       input.checked = false;
@@ -180,21 +174,18 @@ function clearChecklist() {
     }
   });
 
-  // 3. Reset progress bar
   updateProgress();
 }
-
 
 function updateProgress() {
   const boxes = [...document.querySelectorAll("input[type=checkbox]")];
 
-  const relevantBoxes = boxes.filter(b => {
-    const wrapper = b.closest("[data-for]");
-    if (!wrapper) return true; // applies to all modes
-    return wrapper.getAttribute("data-for") === "both"
-      || wrapper.getAttribute("data-for") === checklistKey
-      || wrapper.getAttribute("data-for") === "external"
-      || wrapper.getAttribute("data-for") === "ada";
+  const relevantBoxes = boxes.filter(box => {
+    const scope = box.closest("[data-for]");
+    if (!scope) return true;
+
+    const allowed = scope.getAttribute("data-for");
+    return allowed === "both" || allowed === currentMode;
   });
 
   const done = relevantBoxes.filter(b => b.checked).length;
@@ -209,7 +200,6 @@ function updateProgress() {
   if (text) text.textContent = pct + "% completed";
 }
 
-
 function exportPDF() {
   window.print();
 }
@@ -221,6 +211,3 @@ function toggleNext(el) {
       next.style.display === "block" ? "none" : "block";
   }
 }
-
-
-
