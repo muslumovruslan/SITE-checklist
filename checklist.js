@@ -3,14 +3,17 @@
 ====================================================== */
 
 let db = null;
-let checklistKey = "default"; // UNIQUE KEY PER CHECKLIST
+let checklistKey = "default";
+let firebaseListenerAttached = false;
 
 (function loadFirebase(cb) {
   const appScript = document.createElement("script");
-  appScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
+  appScript.src =
+    "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
   appScript.onload = () => {
     const dbScript = document.createElement("script");
-    dbScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js";
+    dbScript.src =
+      "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js";
     dbScript.onload = cb;
     document.head.appendChild(dbScript);
   };
@@ -21,13 +24,14 @@ function initFirebase() {
   const firebaseConfig = {
     apiKey: "AIzaSyDU7HYzKUsDhG50tU6SwQdLGAfmKjAS7JY",
     authDomain: "shared-checklist-7a74d.firebaseapp.com",
-    databaseURL: "https://shared-checklist-7a74d-default-rtdb.firebaseio.com",
+    databaseURL:
+      "https://shared-checklist-7a74d-default-rtdb.firebaseio.com",
     projectId: "shared-checklist-7a74d",
   };
 
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
-  console.log("Firebase loaded");
+  console.log("Firebase initialized");
 }
 
 /* ======================================================
@@ -35,8 +39,6 @@ function initFirebase() {
 ====================================================== */
 
 function initChecklist(mode = "external", key = null) {
-
-  // Assign stable checklist key
   checklistKey = key || mode;
 
   // Hide sections not meant for this mode
@@ -51,8 +53,25 @@ function initChecklist(mode = "external", key = null) {
     }
   });
 
-  // Attach listeners (NO auto-generated IDs)
-  document.querySelectorAll("input").forEach(input => {
+  // Reset listener flag when re-initializing
+  firebaseListenerAttached = false;
+
+  waitForInputsThenInit();
+}
+
+/* ======================================================
+   3. Robust DOM + Firebase Synchronization
+====================================================== */
+
+function waitForInputsThenInit() {
+  const inputs = document.querySelectorAll("input");
+
+  if (inputs.length === 0) {
+    requestAnimationFrame(waitForInputsThenInit);
+    return;
+  }
+
+  inputs.forEach(input => {
     if (!input.id) {
       console.warn("Input missing id:", input);
       return;
@@ -64,10 +83,6 @@ function initChecklist(mode = "external", key = null) {
   updateProgress();
   waitForFirebaseThenLoad();
 }
-
-/* ======================================================
-   3. Firebase Safe Loader
-====================================================== */
 
 function waitForFirebaseThenLoad() {
   if (!db) {
@@ -109,6 +124,9 @@ function saveState() {
 }
 
 function loadState() {
+  if (firebaseListenerAttached) return;
+  firebaseListenerAttached = true;
+
   checklistRef().on("value", snapshot => {
     applyState(snapshot.val());
   });
@@ -121,7 +139,10 @@ function applyState(state) {
     if (input.id in state) {
       if (input.type === "checkbox") {
         input.checked = state[input.id];
-        input.parentElement.classList.toggle("completed", input.checked);
+        input.parentElement.classList.toggle(
+          "completed",
+          input.checked
+        );
       } else {
         input.value = state[input.id];
       }
@@ -145,7 +166,9 @@ function updateProgress() {
     .filter(b => b.offsetParent !== null);
 
   const done = boxes.filter(b => b.checked).length;
-  const pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+  const pct = boxes.length
+    ? Math.round((done / boxes.length) * 100)
+    : 0;
 
   const fill = document.getElementById("progress-fill");
   const text = document.getElementById("progress-text");
@@ -161,6 +184,7 @@ function exportPDF() {
 function toggleNext(el) {
   const next = el.nextElementSibling;
   if (next) {
-    next.style.display = next.style.display === "block" ? "none" : "block";
+    next.style.display =
+      next.style.display === "block" ? "none" : "block";
   }
 }
