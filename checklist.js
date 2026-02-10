@@ -133,7 +133,11 @@ function loadState() {
 }
 
 function applyState(state) {
-  if (!state) return;
+  if (!state) {
+    // Even if there is no state, still update progress
+    updateProgress();
+    return;
+  }
 
   document.querySelectorAll("input").forEach(input => {
     if (input.id in state) {
@@ -148,6 +152,11 @@ function applyState(state) {
       }
     }
   });
+
+  // 🔑 Force progress recalculation AFTER DOM updates
+  requestAnimationFrame(updateProgress);
+}
+
 
   updateProgress();
 }
@@ -212,5 +221,6 @@ function toggleNext(el) {
       next.style.display === "block" ? "none" : "block";
   }
 }
+
 
 
