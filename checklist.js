@@ -155,11 +155,26 @@ function applyState(state) {
 /* ======================================================
    6. Utilities
 ====================================================== */
-
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
+
+  // 1. Clear Firebase data
   checklistRef().remove();
+
+  // 2. Reset UI immediately
+  document.querySelectorAll("input").forEach(input => {
+    if (input.type === "checkbox") {
+      input.checked = false;
+      input.parentElement.classList.remove("completed");
+    } else {
+      input.value = "";
+    }
+  });
+
+  // 3. Reset progress bar
+  updateProgress();
 }
+
 
 function updateProgress() {
   const boxes = [...document.querySelectorAll("input[type=checkbox]")]
@@ -188,3 +203,4 @@ function toggleNext(el) {
       next.style.display === "block" ? "none" : "block";
   }
 }
+
