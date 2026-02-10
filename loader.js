@@ -1,4 +1,5 @@
 const SPEAKER_KEY = "SITE_SPEAKER_TYPE";
+const CHECKLIST_KEY = "site-talk-2026"; // 🔒 STABLE EVENT KEY
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -8,9 +9,13 @@ function init() {
   if (!type) {
     loadPage("speakerPrompt");
   } else if (type === "yes") {
-    loadPage("externalPage", () => initChecklist("ada"));
+    loadPage("externalPage", () => {
+      initChecklist("ada", CHECKLIST_KEY);
+    });
   } else {
-    loadPage("externalPage", () => initChecklist("external"));
+    loadPage("externalPage", () => {
+      initChecklist("external", CHECKLIST_KEY);
+    });
   }
 }
 
@@ -20,7 +25,7 @@ function loadPage(page, callback) {
     .then(html => {
       document.getElementById("app").innerHTML = html;
 
-      // IMPORTANT: wait until DOM is fully updated
+      // Ensure DOM is ready before checklist binds
       requestAnimationFrame(() => {
         if (callback) callback();
       });
@@ -38,4 +43,3 @@ function resetSpeakerType() {
   localStorage.removeItem(SPEAKER_KEY);
   init();
 }
-
