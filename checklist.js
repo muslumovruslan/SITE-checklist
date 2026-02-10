@@ -1,8 +1,9 @@
 /* ======================================================
-   1. Dynamically load Firebase SDKs (NO index.html dependency)
+   1. Dynamically load Firebase SDKs
 ====================================================== */
 
 let db = null;
+let checklistKey = "default"; // UNIQUE KEY PER CHECKLIST
 
 (function loadFirebase(cb) {
   const appScript = document.createElement("script");
@@ -26,14 +27,17 @@ function initFirebase() {
 
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
-  console.log("Firebase loaded successfully");
+  console.log("Firebase loaded");
 }
 
 /* ======================================================
-   2. Checklist initialization
+   2. Checklist Initialization
 ====================================================== */
 
-function initChecklist(mode = "external") {
+function initChecklist(mode = "external", key = null) {
+
+  // Assign stable checklist key
+  checklistKey = key || mode;
 
   // Hide sections not meant for this mode
   document.querySelectorAll("[data-for]").forEach(el => {
@@ -47,12 +51,14 @@ function initChecklist(mode = "external") {
     }
   });
 
-  // Assign IDs and listeners
-  const inputs = document.querySelectorAll("input");
-  inputs.forEach((i, idx) => {
-    i.id ||= "f_" + idx;
-    i.addEventListener("change", saveState);
-    i.addEventListener("input", saveState);
+  // Attach listeners (NO auto-generated IDs)
+  document.querySelectorAll("input").forEach(input => {
+    if (!input.id) {
+      console.warn("Input missing id:", input);
+      return;
+    }
+    input.addEventListener("change", saveState);
+    input.addEventListener("input", saveState);
   });
 
   updateProgress();
@@ -60,7 +66,7 @@ function initChecklist(mode = "external") {
 }
 
 /* ======================================================
-   3. Firebase-safe loading
+   3. Firebase Safe Loader
 ====================================================== */
 
 function waitForFirebaseThenLoad() {
@@ -72,15 +78,25 @@ function waitForFirebaseThenLoad() {
 }
 
 /* ======================================================
-   4. State management
+   4. Firebase References
+====================================================== */
+
+function checklistRef() {
+  return db.ref("checklists/" + checklistKey);
+}
+
+/* ======================================================
+   5. State Management
 ====================================================== */
 
 function collectState() {
   const state = {};
-  document.querySelectorAll("input").forEach(i => {
-    state[i.id] = i.type === "checkbox" ? i.checked : i.value;
-    if (i.type === "checkbox") {
-      i.parentElement.classList.toggle("completed", i.checked);
+  document.querySelectorAll("input").forEach(input => {
+    state[input.id] =
+      input.type === "checkbox" ? input.checked : input.value;
+
+    if (input.type === "checkbox") {
+      input.parentElement.classList.toggle("completed", input.checked);
     }
   });
   return state;
@@ -88,13 +104,12 @@ function collectState() {
 
 function saveState() {
   if (!db) return;
-  const state = collectState();
-  db.ref("checklist").set(state);
+  checklistRef().update(collectState());
   updateProgress();
 }
 
 function loadState() {
-  db.ref("checklist").on("value", snapshot => {
+  checklistRef().on("value", snapshot => {
     applyState(snapshot.val());
   });
 }
@@ -102,13 +117,13 @@ function loadState() {
 function applyState(state) {
   if (!state) return;
 
-  document.querySelectorAll("input").forEach(i => {
-    if (i.id in state) {
-      if (i.type === "checkbox") {
-        i.checked = state[i.id];
-        i.parentElement.classList.toggle("completed", i.checked);
+  document.querySelectorAll("input").forEach(input => {
+    if (input.id in state) {
+      if (input.type === "checkbox") {
+        input.checked = state[input.id];
+        input.parentElement.classList.toggle("completed", input.checked);
       } else {
-        i.value = state[i.id];
+        input.value = state[input.id];
       }
     }
   });
@@ -117,12 +132,12 @@ function applyState(state) {
 }
 
 /* ======================================================
-   5. Utilities
+   6. Utilities
 ====================================================== */
 
 function clearChecklist() {
   if (!confirm("This will clear the entire checklist. Continue?")) return;
-  if (db) db.ref("checklist").remove();
+  checklistRef().remove();
 }
 
 function updateProgress() {
